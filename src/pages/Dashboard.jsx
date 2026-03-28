@@ -155,6 +155,16 @@ function Dashboard() {
               </div>
             ))}
           </div>
+
+          <div className="mt-8 rounded-2xl border border-[#1DCD9F]/30 bg-[#222222]/70 px-4 py-4 text-center shadow-[0_10px_30px_rgba(0,0,0,0.25)]">
+            <p className="text-base font-semibold text-[#1DCD9F] sm:text-lg">
+              New Features Coming Soon!
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-slate-300 sm:text-base">
+              Adding the ability to compare your picks to the actual results for
+              any given year. Also, the NFL side is still being built.
+            </p>
+          </div>
         </div>
       </main>
     </div>

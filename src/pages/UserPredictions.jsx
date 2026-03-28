@@ -11,6 +11,8 @@ function UserPredictions() {
 
   const formattedSport = sport ? sport.toUpperCase() : "";
 
+  const isNFL = formattedSport === "NFL";
+
   return (
     <div className="min-h-screen bg-[#000000] text-white">
       <header className="sticky top-0 z-20 border-b border-[#1DCD9F]/30 bg-[#222222]/95 px-4 py-4 backdrop-blur-sm">
@@ -42,15 +44,18 @@ function UserPredictions() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-3 py-6 sm:px-4 sm:py-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-semibold text-white sm:text-4xl">
-            {formattedName}
-          </h1>
-          <p className="mt-2 text-lg text-slate-300 sm:text-xl">
+      <main className="mx-auto max-w-7xl px-4 py-10 text-center">
+        <h1 className="text-3xl font-semibold sm:text-4xl">{formattedName}</h1>
+
+        {isNFL ? (
+          <p className="mt-4 text-xl text-[#1DCD9F] sm:text-2xl">
+            NFL Predictions Coming Soon
+          </p>
+        ) : (
+          <p className="mt-4 text-xl text-slate-300 sm:text-2xl">
             {formattedSport} Predictions
           </p>
-        </div>
+        )}
       </main>
     </div>
   );
