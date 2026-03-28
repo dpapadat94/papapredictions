@@ -44,10 +44,7 @@ function Dashboard() {
       try {
         const {
           data: { user },
-          error: userError,
         } = await supabase.auth.getUser();
-
-        if (userError) throw userError;
 
         if (user) {
           const { data: currentProfileData } = await supabase
@@ -68,7 +65,7 @@ function Dashboard() {
 
         setProfiles(data || []);
       } catch (error) {
-        console.error("Error fetching dashboard data:", error);
+        console.error(error);
       } finally {
         setLoading(false);
       }
@@ -97,11 +94,11 @@ function Dashboard() {
   return (
     <div className="min-h-screen bg-[#000000] text-white">
       <header className="sticky top-0 z-20 border-b border-[#1DCD9F]/30 bg-[#222222]/95 px-4 py-4 backdrop-blur-sm">
-        <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-3 sm:gap-4">
-          <img src={crystalBall} alt="Crystal Ball" className="h-10 w-10" />
+        <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-3">
+          <img src={crystalBall} className="h-10 w-10" />
 
           <div className="flex justify-center">
-            <img src={logo} alt="Logo" className="h-10" />
+            <img src={logo} className="h-10" />
           </div>
 
           <div className="flex justify-end">
@@ -117,20 +114,22 @@ function Dashboard() {
 
       <main className="px-3 py-4 sm:px-4 sm:py-6">
         <div className="mx-auto max-w-7xl space-y-4">
-          {/* PROFILE CARDS */}
           {profiles.map((profile) => (
             <div
               key={profile.id}
-              className="rounded-2xl border border-[#1DCD9F] bg-[#222222] p-4"
+              className="rounded-2xl border border-[#1DCD9F] bg-[#222222] p-4 overflow-hidden"
             >
-              <div className="flex items-center gap-4">
+              <div className="flex items-start gap-4">
+                {/* AVATAR */}
                 <img
                   src={avatarMap[profile.display_name]}
-                  className="h-20 w-20 rounded-full"
+                  className="h-20 w-20 rounded-full flex-shrink-0"
                 />
 
-                <div className="flex flex-1 justify-between items-center">
-                  <div className="flex items-center gap-3">
+                {/* RIGHT SIDE */}
+                <div className="flex flex-col flex-1 gap-2">
+                  {/* TOP ROW: NAME + LOGOS */}
+                  <div className="flex items-center gap-3 flex-wrap">
                     <img
                       src={nameImageMap[profile.display_name]}
                       className="h-10"
@@ -139,17 +138,18 @@ function Dashboard() {
                     <Link
                       to={`/users/${profile.display_name.toLowerCase()}/mlb`}
                     >
-                      <img src={mlbLogo} className="h-10 w-10" />
+                      <img src={mlbLogo} className="h-10 w-10 object-contain" />
                     </Link>
 
                     <Link
                       to={`/users/${profile.display_name.toLowerCase()}/nfl`}
                     >
-                      <img src={nflLogo} className="h-10 w-10" />
+                      <img src={nflLogo} className="h-10 w-10 object-contain" />
                     </Link>
                   </div>
 
-                  <p className="text-sm italic text-slate-300 max-w-xl text-right">
+                  {/* QUOTE */}
+                  <p className="text-sm italic text-slate-300 leading-relaxed">
                     {quoteMap[profile.display_name]}
                   </p>
                 </div>
@@ -157,7 +157,6 @@ function Dashboard() {
             </div>
           ))}
 
-          {/* JOKE AD */}
           {jokeAdSrc && (
             <div className="mt-6 -mx-3 sm:mx-0">
               <img
@@ -167,7 +166,6 @@ function Dashboard() {
             </div>
           )}
 
-          {/* FEATURE BLURB */}
           <div className="mt-8 rounded-xl border border-[#1DCD9F]/30 bg-[#222222]/70 p-4 text-center">
             <p className="text-[#1DCD9F] font-semibold">
               New Features Coming Soon!
@@ -177,14 +175,13 @@ function Dashboard() {
             </p>
           </div>
 
-          {/* FAKE SPONSOR */}
           <div className="mt-10 text-center">
             <p className="text-xs text-slate-400 italic">
               Brought to you free of charge and with limited ads by the Church
               Of Jesus Christ of Latter-Day Saints
             </p>
 
-            <img src={jesusLogo} className="mx-auto mt-3 h-40 opacity-100" />
+            <img src={jesusLogo} className="mx-auto mt-3 h-12 opacity-80" />
           </div>
         </div>
       </main>
