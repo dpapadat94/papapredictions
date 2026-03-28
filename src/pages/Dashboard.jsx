@@ -11,10 +11,14 @@ import logo from "../assets/logo.png";
 import crystalBall from "../assets/crystalball.png";
 import mlbLogo from "../assets/mlb.png";
 import nflLogo from "../assets/nfl.png";
+import alexJoke from "../assets/alexjoke.png";
+import dadJoke from "../assets/dadjoke.png";
+import jesusLogo from "../assets/jesus.png";
 import { Link } from "react-router-dom";
 
 function Dashboard() {
   const [profiles, setProfiles] = useState([]);
+  const [currentProfileName, setCurrentProfileName] = useState("");
   const [loading, setLoading] = useState(true);
 
   const avatarMap = {
@@ -36,27 +40,53 @@ function Dashboard() {
   };
 
   useEffect(() => {
-    const fetchProfiles = async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .order("display_name", { ascending: true });
+    const loadDashboardData = async () => {
+      try {
+        const {
+          data: { user },
+          error: userError,
+        } = await supabase.auth.getUser();
 
-      if (error) {
-        console.error("Error fetching profiles:", error);
-      } else {
-        setProfiles(data);
+        if (userError) throw userError;
+
+        if (user) {
+          const { data: currentProfileData } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("auth_user_id", user.id)
+            .maybeSingle();
+
+          if (currentProfileData?.display_name) {
+            setCurrentProfileName(currentProfileData.display_name);
+          }
+        }
+
+        const { data } = await supabase
+          .from("profiles")
+          .select("*")
+          .order("display_name", { ascending: true });
+
+        setProfiles(data || []);
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     };
 
-    fetchProfiles();
+    loadDashboardData();
   }, []);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
   };
+
+  const jokeAdSrc =
+    currentProfileName === "Alex"
+      ? alexJoke
+      : currentProfileName === "Jerry"
+        ? dadJoke
+        : null;
 
   if (loading) {
     return (
@@ -68,28 +98,16 @@ function Dashboard() {
     <div className="min-h-screen bg-[#000000] text-white">
       <header className="sticky top-0 z-20 border-b border-[#1DCD9F]/30 bg-[#222222]/95 px-4 py-4 backdrop-blur-sm">
         <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-3 sm:gap-4">
-          <div className="flex items-center">
-            <img
-              src={crystalBall}
-              alt="Crystal Ball"
-              className="h-9 w-9 object-contain sm:h-10 sm:w-10 md:h-11 md:w-11"
-            />
-          </div>
+          <img src={crystalBall} alt="Crystal Ball" className="h-10 w-10" />
 
           <div className="flex justify-center">
-            <div className="rounded-full px-3 py-1 shadow-[0_0_24px_rgba(29,205,159,0.14)]">
-              <img
-                src={logo}
-                alt="Papa Predictions"
-                className="h-8 w-auto object-contain sm:h-10 md:h-12"
-              />
-            </div>
+            <img src={logo} alt="Logo" className="h-10" />
           </div>
 
           <div className="flex justify-end">
             <button
               onClick={handleSignOut}
-              className="rounded-full bg-[#1DCD9F] px-4 py-2 text-sm font-medium text-black transition hover:bg-[#1DCD9F] hover:text-black hover:shadow-[0_0_18px_rgba(29,205,159,0.25)] sm:px-5 sm:text-base"
+              className="rounded-full bg-[#1DCD9F] px-4 py-2 text-black"
             >
               Sign Out
             </button>
@@ -98,72 +116,75 @@ function Dashboard() {
       </header>
 
       <main className="px-3 py-4 sm:px-4 sm:py-6">
-        <div className="mx-auto max-w-7xl">
-          <div className="space-y-4">
-            {profiles.map((profile) => (
-              <div
-                key={profile.id}
-                className="rounded-2xl border border-[#1DCD9F] bg-[#222222] px-3 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.35)] transition duration-200 hover:-translate-y-[2px] hover:shadow-[0_16px_38px_rgba(0,0,0,0.48)] sm:px-5 sm:py-4"
-              >
-                <div className="flex items-center gap-3 sm:gap-5">
-                  <img
-                    src={avatarMap[profile.display_name]}
-                    alt={profile.display_name}
-                    className="h-20 w-20 flex-shrink-0 rounded-full object-cover ring-2 ring-[#1DCD9F]/30 sm:h-24 sm:w-24 md:h-28 md:w-28"
-                  />
+        <div className="mx-auto max-w-7xl space-y-4">
+          {/* PROFILE CARDS */}
+          {profiles.map((profile) => (
+            <div
+              key={profile.id}
+              className="rounded-2xl border border-[#1DCD9F] bg-[#222222] p-4"
+            >
+              <div className="flex items-center gap-4">
+                <img
+                  src={avatarMap[profile.display_name]}
+                  className="h-20 w-20 rounded-full"
+                />
 
-                  <div className="flex min-w-0 flex-1 flex-col justify-center md:flex-row md:items-center md:justify-between md:gap-8">
-                    <div className="min-w-0 md:pr-6">
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={nameImageMap[profile.display_name]}
-                          alt={profile.display_name}
-                          className="h-10 w-auto object-contain sm:h-12 md:h-14"
-                        />
+                <div className="flex flex-1 justify-between items-center">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={nameImageMap[profile.display_name]}
+                      className="h-10"
+                    />
 
-                        <Link
-                          to={`/users/${profile.display_name.toLowerCase()}/mlb`}
-                          className="group rounded-full p-1 transition"
-                          aria-label={`${profile.display_name} MLB`}
-                        >
-                          <img
-                            src={mlbLogo}
-                            alt="MLB"
-                            className="h-10 w-10 object-contain drop-shadow-[0_0_10px_rgba(59,130,246,0.45)] transition duration-200 group-hover:scale-110 group-hover:drop-shadow-[0_0_12px_rgba(255,255,255,0.65)] sm:h-12 sm:w-12"
-                          />
-                        </Link>
+                    <Link
+                      to={`/users/${profile.display_name.toLowerCase()}/mlb`}
+                    >
+                      <img src={mlbLogo} className="h-10 w-10" />
+                    </Link>
 
-                        <Link
-                          to={`/users/${profile.display_name.toLowerCase()}/nfl`}
-                          className="group rounded-full p-1 transition"
-                          aria-label={`${profile.display_name} NFL`}
-                        >
-                          <img
-                            src={nflLogo}
-                            alt="NFL"
-                            className="h-10 w-10 object-contain drop-shadow-[0_0_10px_rgba(239,68,68,0.45)] transition duration-200 group-hover:scale-110 group-hover:drop-shadow-[0_0_12px_rgba(255,255,255,0.65)] sm:h-12 sm:w-12"
-                          />
-                        </Link>
-                      </div>
-                    </div>
-
-                    <p className="mt-3 max-w-2xl text-sm italic leading-relaxed text-slate-300 sm:text-base md:mt-0 md:text-right md:text-lg">
-                      {quoteMap[profile.display_name]}
-                    </p>
+                    <Link
+                      to={`/users/${profile.display_name.toLowerCase()}/nfl`}
+                    >
+                      <img src={nflLogo} className="h-10 w-10" />
+                    </Link>
                   </div>
+
+                  <p className="text-sm italic text-slate-300 max-w-xl text-right">
+                    {quoteMap[profile.display_name]}
+                  </p>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
 
-          <div className="mt-8 rounded-2xl border border-[#1DCD9F]/30 bg-[#222222]/70 px-4 py-4 text-center shadow-[0_10px_30px_rgba(0,0,0,0.25)]">
-            <p className="text-base font-semibold text-[#1DCD9F] sm:text-lg">
+          {/* JOKE AD */}
+          {jokeAdSrc && (
+            <div className="mt-6 -mx-3 sm:mx-0">
+              <img
+                src={jokeAdSrc}
+                className="w-full h-auto rounded-none border-y border-[#1DCD9F]/30 sm:border"
+              />
+            </div>
+          )}
+
+          {/* FEATURE BLURB */}
+          <div className="mt-8 rounded-xl border border-[#1DCD9F]/30 bg-[#222222]/70 p-4 text-center">
+            <p className="text-[#1DCD9F] font-semibold">
               New Features Coming Soon!
             </p>
-            <p className="mt-2 text-sm leading-relaxed text-slate-300 sm:text-base">
-              Adding the ability to compare your picks to the actual results for
-              any given year. Also, the NFL side is still being built.
+            <p className="text-sm text-slate-300 mt-2">
+              Compare your picks to real results + NFL coming soon.
             </p>
+          </div>
+
+          {/* FAKE SPONSOR */}
+          <div className="mt-10 text-center">
+            <p className="text-xs text-slate-400 italic">
+              Brought to you free of charge and with limited ads by the Church
+              Of Jesus Christ of Latter-Day Saints
+            </p>
+
+            <img src={jesusLogo} className="mx-auto mt-3 h-40 opacity-100" />
           </div>
         </div>
       </main>
