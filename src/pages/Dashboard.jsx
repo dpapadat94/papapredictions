@@ -35,7 +35,7 @@ function Dashboard() {
 
   const quoteMap = {
     Alex: "“Urm, actually... according to my calculations these predictions are correct”",
-    Dennis: "“RIP the legand Paul Rizzuto”",
+    Dennis: "“RIP the legend Paul Rizzuto”",
     Jerry: "“You mess with me you get the bull!”",
   };
 
